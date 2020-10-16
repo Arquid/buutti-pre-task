@@ -89,6 +89,10 @@ const interests = Object.freeze([
   },
   {
     userId: 3,
+    interest: "Computers"
+  },
+  {
+    userId: 3,
     interest: "Cats",
   },
   {
@@ -128,7 +132,7 @@ const findByFirstName = (firstname) => {
   );
 
   // return names in array
-  return personList.map((person) => person.name);
+  return personList;
 };
 
 /* Should return the users age.
@@ -229,25 +233,25 @@ const createCompanyProfiles = () => {
   for(let i=0; i<companyNames.length; i++) {
 
     // get company name
-    let companyName = companyNames[i];
+    const companyName = companyNames[i];
 
     // get workers and worker ids
-    let workers = professions.filter(work => work.workplace === companyName);
-    let companyWorkersId = workers.map(id => id.userId);
+    const workers = professions.filter(work => work.workplace === companyName);
+    const companyWorkersId = workers.map(id => id.userId);
 
     // create new array
-    let workerInfoArray = [];
+    const workerInfoArray = [];
 
     // loop workers
     for(let j=0; j<workers.length; j++) {
 
       // get data from persons, position and interests
-      let person = persons.filter(person => person.userId === companyWorkersId[j]);
-      let position = professions.filter(person => person.userId === companyWorkersId[j]);
-      let interestArr = interests.filter(person => person.userId === companyWorkersId[j]);
+      const person = persons.filter(person => person.userId === companyWorkersId[j]);
+      const position = professions.filter(person => person.userId === companyWorkersId[j]);
+      const interestArr = interests.filter(person => person.userId === companyWorkersId[j]);
       
       // create temporary object
-      let dummyObj = {
+      const dummyObj = {
         userId: person[0].userId,
         name: person[0].name,
         dateOfBirth: person[0].dateOfBirth,
@@ -268,6 +272,37 @@ const createCompanyProfiles = () => {
   return JSON.stringify(companyObj);
 };
 
+const createCompanyProfilesWithReduce = () => {
+  
+  // createCompanyProfile function with reduce()
+  return professions.reduce((acc, cur) => {
+       
+    const employObj = 
+    professions
+      .filter(x => x.workplace === cur.workplace)
+      .map(z => {
+        const person = persons.filter(p => p.userId === z.userId)
+        const posi = professions.filter(i => i.userId === z.userId).map(i => i.position)
+        const int = interests.filter(i => i.userId === z.userId).map(i => i.interest)
+
+        const obj = {
+          userId: person[0].userId,
+          name: person[0].name,
+          dateOfBirth: person[0].dateOfBirth,
+          email: person[0].email,
+          position: posi.toString(),
+          interest: int
+      }
+      return obj
+    })
+
+    acc[cur.workplace] = {employees: employObj}
+
+    return acc
+  }, {});
+}
+
+
 console.log(
   'All persons with first name "Teppo" are',
   findByFirstName("Teppo")
@@ -281,3 +316,5 @@ console.log(
 console.log("The average age of all persons", calculateAverageAge());
 
 console.log("Company profiles created", createCompanyProfiles());
+
+console.log("Company profiles created", JSON.stringify(createCompanyProfilesWithReduce()));
